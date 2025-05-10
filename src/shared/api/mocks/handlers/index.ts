@@ -16,5 +16,29 @@ const boards: ApiSchemas['Board'][] = [
 export const handlers = [
   http.get('/boards', () => {
     return HttpResponse.json(boards)
+  }),
+  http.delete('/boards/{boardId}', async ({ params }) => {
+    const { boardId } = params
+    const index = boards.findIndex((board) => board.id === boardId)
+
+    if (index === -1) {
+      return HttpResponse.json(
+        { message: 'Board not found', code: 'NOT_FOUND' },
+        { status: 404 }
+      )
+    }
+
+    boards.splice(index, 1)
+    return new HttpResponse(null, { status: 204 })
+  }),
+  http.post('/boards', async (ctx) => {
+    const data = await ctx.request.json()
+    const board: ApiSchemas['Board'] = {
+      id: crypto.randomUUID(),
+      name: data.name
+    }
+
+    boards.push(board)
+    return HttpResponse.json(board, { status: 201 })
   })
 ]
