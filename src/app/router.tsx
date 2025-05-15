@@ -1,19 +1,26 @@
 import { ROUTES } from '../shared/model/routes'
 import { createBrowserRouter, redirect } from 'react-router-dom'
 import { App } from './app'
+import { ProtectedRoute } from './protected-route'
 
 export const router = createBrowserRouter([
   {
     element: <App />,
     children: [
       {
-        path: ROUTES.BOARDS,
-        lazy: () => import('@/features/boards-list/boards-list.page')
+        Component: ProtectedRoute,
+        children: [
+          {
+            path: ROUTES.BOARDS,
+            lazy: () => import('@/features/boards-list/boards-list.page')
+          },
+          {
+            path: ROUTES.BOARD,
+            lazy: () => import('@/features/board/board.page')
+          }
+        ]
       },
-      {
-        path: ROUTES.BOARD,
-        lazy: () => import('@/features/board/board.page')
-      },
+
       {
         path: ROUTES.LOGIN,
         lazy: () => import('@/features/auth/login.page')
