@@ -10,9 +10,6 @@ function BoardsListPage() {
   const queryClient = useQueryClient()
   const boardsQuery = rqClient.useQuery('get', '/boards')
 
-  const { data } = rqClient.useQuery('post', '/auth/refresh')
-  console.log(123, data)
-
   const createBoardMutation = rqClient.useMutation('post', '/boards', {
     onSettled: async () => {
       queryClient.invalidateQueries(rqClient.queryOptions('get', '/boards'))
