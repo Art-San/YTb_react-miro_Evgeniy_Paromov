@@ -18,6 +18,7 @@ import {
 import { Switch } from '@/shared/ui/kit/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/kit/tabs'
 import { ApiSchemas } from '@/shared/api/schema'
+import { useBoardsList } from './use-boards-list'
 
 type BoardsSortOption = 'createdAt' | 'updatedAt' | 'lastOpenedAt' | 'name'
 
@@ -34,82 +35,43 @@ function BoardsListPage() {
   const observer = useRef<IntersectionObserver | null>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  // Дебаунс для поиска
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search)
-      setPage(1) // Сбрасываем страницу при изменении поиска
-      setBoards([]) // Очищаем список досок при новом поиске
-    }, 300)
+  const boardsQuery = useBoardsList({})
 
-    return () => clearTimeout(timer)
-  }, [search])
-
-  // Сброс страницы и списка досок при изменении фильтров или сортировки
-  useEffect(() => {
-    setPage(1)
-    setBoards([])
-  }, [sort, showFavorites])
-
-  const boardsQuery = rqClient.useQuery('get', '/boards', {
-    params: {
-      query: {
-        page,
-        limit: 20,
-        sort,
-        search: debouncedSearch || undefined,
-        isFavorite: showFavorites
-      }
-    },
-    enabled: true
-  })
+  // const boardsQuery = rqClient.useQuery('get', '/boards', {
+  //   params: {
+  //     query: {
+  //       page,
+  //       limit: 20,
+  //       sort,
+  //       search: debouncedSearch || undefined,
+  //       isFavorite: showFavorites
+  //     }
+  //   },
+  //   enabled: true
+  // })
 
   // Обновляем список досок при получении новых данных
-  useEffect(() => {
-    if (boardsQuery.data?.list) {
-      if (page === 1) {
-        setBoards(boardsQuery.data.list)
-      } else {
-        setBoards((prev) => [...prev, ...boardsQuery.data.list])
-      }
-      setHasMore(page < (boardsQuery.data.totalPages || 1))
-      setIsLoadingMore(false)
-    }
-  }, [boardsQuery.data, page])
+  // useEffect(() => {
+  //   if (boardsQuery.data?.list) {
+  //     if (page === 1) {
+  //       setBoards(boardsQuery.data.list)
+  //     } else {
+  //       setBoards((prev) => [...prev, ...boardsQuery.data.list])
+  //     }
+  //     setHasMore(page < (boardsQuery.data.totalPages || 1))
+  //     setIsLoadingMore(false)
+  //   }
+  // }, [boardsQuery.data, page])
 
   // Функция для загрузки следующей страницы
-  const loadMore = useCallback(() => {
-    if (!isLoadingMore && hasMore && !boardsQuery.isPending) {
-      setIsLoadingMore(true)
-      setPage((prevPage) => prevPage + 1)
-    }
-  }, [isLoadingMore, hasMore, boardsQuery.isPending])
+  // const loadMore = useCallback(() => {
+  //   if (!isLoadingMore && hasMore && !boardsQuery.isPending) {
+  //     setIsLoadingMore(true)
+  //     setPage((prevPage) => prevPage + 1)
+  //   }
+  // }, [isLoadingMore, hasMore, boardsQuery.isPending])
 
   // Настройка IntersectionObserver для бесконечной прокрутки
-  useEffect(() => {
-    if (observer.current) {
-      observer.current.disconnect()
-    }
-
-    observer.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMore()
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    if (loadMoreRef.current) {
-      observer.current.observe(loadMoreRef.current)
-    }
-
-    return () => {
-      if (observer.current) {
-        observer.current.disconnect()
-      }
-    }
-  }, [loadMore, hasMore])
 
   const createBoardMutation = rqClient.useMutation('post', '/boards', {
     onSettled: async () => {
@@ -220,12 +182,12 @@ function BoardsListPage() {
         </form>
       </div>
 
-      {boardsQuery.isPending && page === 1 ? (
+      {boardsQuery.isPending ? (
         <div className="text-center py-10">Загрузка...</div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {boards.map((board) => (
+            {boardsQuery.boards.map((board) => (
               <Card key={board.id} className="relative">
                 <div className="absolute top-2 right-2 flex items-center gap-2">
                   <Switch
@@ -275,12 +237,12 @@ function BoardsListPage() {
             ))}
           </div>
 
-          {boards.length === 0 && !boardsQuery.isPending && (
+          {boardsQuery.boards.length === 0 && !boardsQuery.isPending && (
             <div className="text-center py-10">Доски не найдены</div>
           )}
 
-          {hasMore && (
-            <div ref={loadMoreRef} className="text-center py-8">
+          {boardsQuery.hasNextPage && (
+            <div ref={boardsQuery.cursorRef} className="text-center py-8">
               {isLoadingMore && 'Загрузка дополнительных досок...'}
             </div>
           )}
@@ -291,85 +253,3 @@ function BoardsListPage() {
 }
 
 export const Component = BoardsListPage
-
-// import { rqClient } from '@/shared/api/instance'
-// import { CONFIG } from '@/shared/model/config'
-// import { ROUTES } from '@/shared/model/routes'
-// import { Button } from '@/shared/ui/kit/button'
-// import { Card, CardFooter, CardHeader } from '@/shared/ui/kit/card'
-// import { useQueryClient } from '@tanstack/react-query'
-// import { href, Link } from 'react-router-dom'
-
-// function BoardsListPage() {
-//   const queryClient = useQueryClient()
-//   const boardsQuery = rqClient.useQuery('get', '/boards', {
-//     params: {
-//       query: {
-//         limit: 10
-//       }
-//     }
-//   })
-
-//   const createBoardMutation = rqClient.useMutation('post', '/boards', {
-//     onSettled: async () => {
-//       queryClient.invalidateQueries(rqClient.queryOptions('get', '/boards'))
-//     }
-//   })
-//   const deleteBoardMutation = rqClient.useMutation(
-//     'delete',
-//     '/boards/{boardId}',
-//     {
-//       onSettled: async () => {
-//         queryClient.invalidateQueries(rqClient.queryOptions('get', '/boards'))
-//       }
-//     }
-//   )
-
-//   // boardsQuery.
-
-//   return (
-//     <div className="  container mx-auto p-4">
-//       <h1 className=" text-red-500">Boards list === {CONFIG.API_BASE_URL}</h1>
-
-//       <form
-//         onSubmit={(e) => {
-//           e.preventDefault()
-
-//           createBoardMutation.mutate({})
-//         }}
-//       >
-//         <input type="text" name="name" />
-//         <button type="submit">Create Board</button>
-//       </form>
-
-//       <div className=" grid grid-cols-3 gap-4 ">
-//         {boardsQuery.data?.list.map((board) => (
-//           <Card key={board.id}>
-//             <CardHeader>
-//               <Button asChild variant={'link'}>
-//                 <Link to={href(ROUTES.BOARD, { boardId: board.id })}>
-//                   {board.name}
-//                 </Link>
-//               </Button>
-//             </CardHeader>
-//             <CardFooter>
-//               <Button
-//                 variant="destructive"
-//                 disabled={deleteBoardMutation.isPending}
-//                 onClick={() =>
-//                   deleteBoardMutation.mutate({
-//                     params: { path: { boardId: board.id } }
-//                   })
-//                 }
-//               >
-//                 Delete
-//               </Button>
-//             </CardFooter>
-//           </Card>
-//         ))}
-//       </div>
-//     </div>
-//   )
-// }
-
-// export const Component = BoardsListPage
