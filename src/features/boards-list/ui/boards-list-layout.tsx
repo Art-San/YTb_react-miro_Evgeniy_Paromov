@@ -7,7 +7,6 @@ export function BoardsListLayout({
 }: {
   header: React.ReactNode
   filters?: React.ReactNode
-  // list: React.ReactNode
   children?: React.ReactNode
 }) {
   return (
@@ -32,6 +31,7 @@ export function BoardsListLayoutHeader({
     <div className="flex justify-between items-center">
       <div>
         <h1 className="text-2xl font-bold">{title}</h1>
+
         {description && <p className="text-gray-500">{description}</p>}
       </div>
 

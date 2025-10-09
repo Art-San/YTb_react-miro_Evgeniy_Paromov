@@ -7,7 +7,8 @@ import {
   BoardsListLayout,
   BoardsListLayoutCards,
   BoardsListLayoutContent,
-  BoardsListLayoutHeader
+  BoardsListLayoutHeader,
+  BoardsListLayoutList
 } from './ui/boards-list-layout'
 import { useState } from 'react'
 import { ViewMode, ViewModeToggle } from './ui/view-mode-toggle'
@@ -46,30 +47,26 @@ function BoardsListPage() {
         hasCursor={boardsQuery.hasNextPage}
       >
         {viewMode === 'list' ? (
-          <BoardsListLayoutCards>
+          <BoardsListLayoutList>
             {boardsQuery.boards.map((board) => (
               <BoardsListCard
                 key={board.id}
                 board={board}
-                isFavorite={board.isFavorite}
-                onFavoriteToggle={() =>
-                  updateFavorite.isOptimisticFavorite(board)
-                }
+                isFavorite={updateFavorite.isOptimisticFavorite(board)}
+                onFavoriteToggle={() => updateFavorite.toggle(board)}
                 onDelete={() => deleteBoard.deleteBoard(board.id)}
                 isDeletePending={deleteBoard.getIsPending(board.id)}
               />
             ))}
-          </BoardsListLayoutCards>
+          </BoardsListLayoutList>
         ) : (
           <BoardsListLayoutCards>
             {boardsQuery.boards.map((board) => (
               <BoardsListCard
                 key={board.id}
                 board={board}
-                isFavorite={board.isFavorite}
-                onFavoriteToggle={() =>
-                  updateFavorite.isOptimisticFavorite(board)
-                }
+                isFavorite={updateFavorite.isOptimisticFavorite(board)}
+                onFavoriteToggle={() => updateFavorite.toggle(board)}
                 onDelete={() => deleteBoard.deleteBoard(board.id)}
                 isDeletePending={deleteBoard.getIsPending(board.id)}
               />

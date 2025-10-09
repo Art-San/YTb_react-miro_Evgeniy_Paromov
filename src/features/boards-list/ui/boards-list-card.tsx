@@ -1,7 +1,8 @@
 import { ROUTES } from '@/shared/model/routes'
 import { Button } from '@/shared/ui/kit/button'
 import { Card, CardFooter, CardHeader } from '@/shared/ui/kit/card'
-import { Switch } from '@radix-ui/react-switch'
+import { Switch } from '@/shared/ui/kit/switch'
+
 import { StarIcon } from 'lucide-react'
 import { Link, href } from 'react-router-dom'
 
@@ -32,7 +33,7 @@ export function BoardsListCard({
           <StarIcon />
         </span>
         <Switch checked={isFavorite} onCheckedChange={onFavoriteToggle} />
-        <Switch checked={false} />
+
         {/* switch */}
       </div>
       <CardHeader>

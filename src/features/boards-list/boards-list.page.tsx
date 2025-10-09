@@ -81,35 +81,31 @@ function BoardsListPage() {
         hasCursor={boardsQuery.hasNextPage}
       >
         {viewMode === 'list' ? (
-          <BoardsListLayoutCards>
-            {boardsQuery.boards.map((board) => (
-              <BoardsListCard
-                key={board.id}
-                board={board}
-                isFavorite={board.isFavorite}
-                onFavoriteToggle={() =>
-                  updateFavorite.isOptimisticFavorite(board)
-                }
-                onDelete={() => deleteBoard.deleteBoard(board.id)}
-                isDeletePending={deleteBoard.getIsPending(board.id)}
-              />
-            ))}
-          </BoardsListLayoutCards>
-        ) : (
           <BoardsListLayoutList>
             {boardsQuery.boards.map((board) => (
               <BoardsListCard
                 key={board.id}
                 board={board}
-                isFavorite={board.isFavorite}
-                onFavoriteToggle={() =>
-                  updateFavorite.isOptimisticFavorite(board)
-                }
+                isFavorite={updateFavorite.isOptimisticFavorite(board)}
+                onFavoriteToggle={() => updateFavorite.toggle(board)}
                 onDelete={() => deleteBoard.deleteBoard(board.id)}
                 isDeletePending={deleteBoard.getIsPending(board.id)}
               />
             ))}
           </BoardsListLayoutList>
+        ) : (
+          <BoardsListLayoutCards>
+            {boardsQuery.boards.map((board) => (
+              <BoardsListCard
+                key={board.id}
+                board={board}
+                isFavorite={updateFavorite.isOptimisticFavorite(board)}
+                onFavoriteToggle={() => updateFavorite.toggle(board)}
+                onDelete={() => deleteBoard.deleteBoard(board.id)}
+                isDeletePending={deleteBoard.getIsPending(board.id)}
+              />
+            ))}
+          </BoardsListLayoutCards>
         )}
       </BoardsListLayoutContent>
     </BoardsListLayout>
