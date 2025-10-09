@@ -32,7 +32,8 @@ export function BoardsListCard({
           <StarIcon />
         </span>
         <Switch checked={isFavorite} onCheckedChange={onFavoriteToggle} />
-        switch
+        <Switch checked={false} />
+        {/* switch */}
       </div>
       <CardHeader>
         <div className="flex flex-col gap-2">

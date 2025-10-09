@@ -3,11 +3,10 @@ import React from 'react'
 export function BoardsListLayout({
   header,
   filters,
-  // list,
   children
 }: {
   header: React.ReactNode
-  filters: React.ReactNode
+  filters?: React.ReactNode
   // list: React.ReactNode
   children?: React.ReactNode
 }) {
@@ -15,7 +14,6 @@ export function BoardsListLayout({
     <div className="container mx-auto p-4 flex flex-col gap-6">
       {header}
       {filters}
-      {/* {list} */}
       {children}
     </div>
   )
