@@ -1,35 +1,23 @@
-import { ROUTES } from '@/shared/model/routes'
 import { Button } from '@/shared/ui/kit/button'
-import { Card, CardFooter, CardHeader } from '@/shared/ui/kit/card'
-
-import { Link, href } from 'react-router-dom'
-import { Input } from '@/shared/ui/kit/input'
-import { Label } from '@/shared/ui/kit/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/shared/ui/kit/select'
-import { Switch } from '@/shared/ui/kit/switch'
-
-import { useBoardsList } from './use-boards-list'
-import { useBoardsFilters } from './use-boards-filters'
-import { useDebouncedValue } from '@/shared/lib/rteact'
-import { useCreateBoard } from './use-create-board'
-import { useDeleteBoard } from './use-delete-board'
-import { useUpdateFavorite } from './use-update-favorite'
-import { StarIcon } from 'lucide-react'
+import { useBoardsList } from './model/use-boards-list'
+import { useBoardsFilters } from './model/use-boards-filters'
+import { useDebouncedValue } from '@/shared/lib/react'
+import { useCreateBoard } from './model/use-create-board'
+import { useDeleteBoard } from './model/use-delete-board'
+import { useUpdateFavorite } from './model/use-update-favorite'
+import { PlusIcon } from 'lucide-react'
 import {
   BoardsListLayout,
+  BoardsListLayoutCards,
+  BoardsListLayoutContent,
   BoardsListLayoutFilters,
   BoardsListLayoutHeader
-} from './boards-list-layout'
+} from './ui/boards-list-layout'
 import { useState } from 'react'
-import { ViewMode, ViewModeToggle } from './view-mode-toggle'
-
-type BoardsSortOption = 'createdAt' | 'updatedAt' | 'lastOpenedAt' | 'name'
+import { ViewMode, ViewModeToggle } from './ui/view-mode-toggle'
+import { BoardsSortSelect } from './ui/boards-sort-select'
+import { BoardsSearchInput } from './ui/boards-search-input'
+import { BoardsListCard } from './ui/boards-list-card'
 
 function BoardsListPage() {
   const boardsFilters = useBoardsFilters()
@@ -51,53 +39,103 @@ function BoardsListPage() {
           title="Доски"
           description="Здесь вы можете просматривать и управлять своими досками"
           actions={
-            <ViewModeToggle
-              value={viewMode}
-              onChange={(value) => setViewMode(value)}
-            />
-            // <Button
-            //   onClick={createBoard.createBoard}
-            //   disabled={createBoard.isPending}
-            // >
-            //   <PlusIcon />
-            //   Создать доску
-            // </Button>
+            <Button
+              onClick={createBoard.createBoard}
+              disabled={createBoard.isPending}
+            >
+              <PlusIcon />
+              Создать доску
+            </Button>
           }
         />
       }
       filters={
         <BoardsListLayoutFilters
           sort={
-            <Select
+            <BoardsSortSelect
               value={boardsFilters.sort}
-              onValueChange={(value) =>
-                boardsFilters.setSort(value as BoardsSortOption)
-              }
-            >
-              <SelectTrigger id="sort" className="w-full">
-                <SelectValue placeholder="Сортировка" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lastOpenedAt">По дате открытия</SelectItem>
-                <SelectItem value="createdAt">По дате создания</SelectItem>
-                <SelectItem value="updatedAt">По дате обновления</SelectItem>
-                <SelectItem value="name">По имени</SelectItem>
-              </SelectContent>
-            </Select>
+              onValueChange={boardsFilters.setSort}
+            />
+            // <Select
+            //   value={boardsFilters.sort}
+            //   onValueChange={(value) =>
+            //     boardsFilters.setSort(value as BoardsSortOption)
+            //   }
+            // >
+            //   <SelectTrigger id="sort" className="w-full">
+            //     <SelectValue placeholder="Сортировка" />
+            //   </SelectTrigger>
+            //   <SelectContent>
+            //     <SelectItem value="lastOpenedAt">По дате открытия</SelectItem>
+            //     <SelectItem value="createdAt">По дате создания</SelectItem>
+            //     <SelectItem value="updatedAt">По дате обновления</SelectItem>
+            //     <SelectItem value="name">По имени</SelectItem>
+            //   </SelectContent>
+            // </Select>
           }
           filters={
-            <Input
-              id="search"
-              placeholder="Введите название доски..."
+            <BoardsSearchInput
               value={boardsFilters.search}
-              onChange={(e) => boardsFilters.setSearch(e.target.value)}
-              className="w-full"
+              onChange={boardsFilters.setSearch}
+            />
+
+            // <Input
+            //   id="search"
+            //   placeholder="Введите название доски..."
+            //   value={boardsFilters.search}
+            //   onChange={(e) => boardsFilters.setSearch(e.target.value)}
+            //   className="w-full"
+            // />
+          }
+          actions={
+            <ViewModeToggle
+              value={viewMode}
+              onChange={(value) => setViewMode(value)}
             />
           }
-        ></BoardsListLayoutFilters>
+        />
       }
     >
-      {boardsQuery.isPending ? (
+      <BoardsListLayoutContent
+        isEmpty={boardsQuery.boards.length === 0}
+        isPending={boardsQuery.isPending}
+        isPendingNext={boardsQuery.isFetchingNextPage}
+        cursorRef={boardsQuery.cursorRef}
+        hasCursor={boardsQuery.hasNextPage}
+      >
+        {viewMode === 'list' ? (
+          <BoardsListLayoutCards>
+            {boardsQuery.boards.map((board) => (
+              <BoardsListCard
+                key={board.id}
+                board={board}
+                isFavorite={board.isFavorite}
+                onFavoriteToggle={() =>
+                  updateFavorite.isOptimisticFavorite(board)
+                }
+                onDelete={() => deleteBoard.deleteBoard(board.id)}
+                isDeletePending={deleteBoard.getIsPending(board.id)}
+              />
+            ))}
+          </BoardsListLayoutCards>
+        ) : (
+          <BoardsListLayoutCards>
+            {boardsQuery.boards.map((board) => (
+              <BoardsListCard
+                key={board.id}
+                board={board}
+                isFavorite={board.isFavorite}
+                onFavoriteToggle={() =>
+                  updateFavorite.isOptimisticFavorite(board)
+                }
+                onDelete={() => deleteBoard.deleteBoard(board.id)}
+                isDeletePending={deleteBoard.getIsPending(board.id)}
+              />
+            ))}
+          </BoardsListLayoutCards>
+        )}
+      </BoardsListLayoutContent>
+      {/* {boardsQuery.isPending ? (
         <div className="text-center py-10">Загрузка...</div>
       ) : (
         <>
@@ -158,7 +196,7 @@ function BoardsListPage() {
             </div>
           )}
         </>
-      )}
+      )} */}
     </BoardsListLayout>
   )
 }

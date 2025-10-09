@@ -3,17 +3,20 @@ import React from 'react'
 export function BoardsListLayout({
   header,
   filters,
-  list
+  // list,
+  children
 }: {
   header: React.ReactNode
   filters: React.ReactNode
-  list: React.ReactNode
+  // list: React.ReactNode
+  children?: React.ReactNode
 }) {
   return (
     <div className="container mx-auto p-4 flex flex-col gap-6">
       {header}
       {filters}
-      {list}
+      {/* {list} */}
+      {children}
     </div>
   )
 }
@@ -67,6 +70,60 @@ export function BoardsListLayoutFilters({
       {actions && <div className="ml-auto">{actions}</div>}
     </div>
   )
+}
+
+export function BoardsListLayoutContent({
+  children,
+  isEmpty,
+  isPending,
+  isPendingNext,
+  cursorRef,
+  hasCursor
+}: {
+  children?: React.ReactNode
+  isEmpty?: boolean
+  isPending?: boolean
+  isPendingNext?: boolean
+  cursorRef?: React.RefCallback<HTMLDivElement>
+  // cursorRef?: React.Ref<HTMLDivElement>
+  hasCursor?: boolean
+}) {
+  return (
+    <div>
+      {isPending && <div className="text-center py-10">Загрузка...</div>}
+
+      {!isPending && children}
+      {isEmpty && !isPending && (
+        <div className="text-center py-10">Доски не найдены</div>
+      )}
+
+      {hasCursor && (
+        <div ref={cursorRef} className="text-center py-8">
+          {isPendingNext && 'Загрузка дополнительных досок...'}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function BoardsListLayoutCards({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {children}
+    </div>
+  )
+}
+
+export function BoardsListLayoutList({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  return <div className="flex flex-col gap-2">{children}</div>
 }
 
 // export function BoardsListLayoutContent({
