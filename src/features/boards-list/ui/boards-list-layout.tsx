@@ -76,25 +76,34 @@ export function BoardsListLayoutContent({
   isPending,
   isPendingNext,
   cursorRef,
-  hasCursor
+  hasCursor,
+  mode,
+  renderList,
+  renderGrid
 }: {
   children?: React.ReactNode
   isEmpty?: boolean
   isPending?: boolean
   isPendingNext?: boolean
   cursorRef?: React.RefCallback<HTMLDivElement>
-  // cursorRef?: React.Ref<HTMLDivElement>
   hasCursor?: boolean
+  mode?: 'list' | 'grid'
+  renderList?: () => React.ReactNode
+  renderGrid?: () => React.ReactNode
 }) {
   return (
     <div>
       {isPending && <div className="text-center py-10">Загрузка...</div>}
-
+      {mode === 'list' && renderList && (
+        <BoardsListLayoutList>{renderList?.()}</BoardsListLayoutList>
+      )}{' '}
+      {mode === 'grid' && renderGrid && (
+        <BoardsListLayoutCards>{renderGrid?.()}</BoardsListLayoutCards>
+      )}
       {!isPending && children}
       {isEmpty && !isPending && (
         <div className="text-center py-10">Доски не найдены</div>
       )}
-
       {hasCursor && (
         <div ref={cursorRef} className="text-center py-8">
           {isPendingNext && 'Загрузка дополнительных досок...'}
@@ -103,6 +112,26 @@ export function BoardsListLayoutContent({
     </div>
   )
 }
+
+// export function BoardsListItemsLayout({
+//   mode,
+//   renderList,
+//   renderGrid
+// }: {
+//   mode?: 'list' | 'grid'
+//   renderList?: () => React.ReactNode
+//   renderGrid?: () => React.ReactNode
+// }) {
+//   if (mode === 'list') {
+//     ;<div className="flex flex-col gap-2">{renderList()}</div>
+//   }
+
+//   return (
+//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//       {renderGrid()}
+//     </div>
+//   )
+// }
 
 export function BoardsListLayoutCards({
   children
