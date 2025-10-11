@@ -34,7 +34,9 @@ export function BoardsListCard({
             className="text-left justify-start h-auto p-0"
           >
             <Link to={href(ROUTES.BOARD, { boardId: board.id })}>
-              <span className="text-xl font-medium">{board.name}</span>
+              <span className="text-xl font-medium break-words whitespace-normal">
+                {board.name}
+              </span>
             </Link>
           </Button>
           <div className="text-sm text-gray-500">
