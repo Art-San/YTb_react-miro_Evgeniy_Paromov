@@ -1,4 +1,6 @@
+import { Skeleton } from '@/shared/ui/kit/skeleton'
 import React from 'react'
+import { ViewMode } from './view-mode-toggle'
 
 export function BoardsListLayout({
   header,
@@ -87,7 +89,7 @@ export function BoardsListLayoutContent({
   isPendingNext?: boolean
   cursorRef?: React.RefCallback<HTMLDivElement>
   hasCursor?: boolean
-  mode?: 'list' | 'grid'
+  mode: ViewMode
   renderList?: () => React.ReactNode
   renderGrid?: () => React.ReactNode
 }) {
@@ -97,41 +99,36 @@ export function BoardsListLayoutContent({
       {mode === 'list' && renderList && (
         <BoardsListLayoutList>{renderList?.()}</BoardsListLayoutList>
       )}{' '}
-      {mode === 'grid' && renderGrid && (
+      {mode === 'cards' && renderGrid && (
         <BoardsListLayoutCards>{renderGrid?.()}</BoardsListLayoutCards>
       )}
       {!isPending && children}
       {isEmpty && !isPending && (
         <div className="text-center py-10">Доски не найдены</div>
       )}
-      {hasCursor && (
+      {hasCursor && mode && (
         <div ref={cursorRef} className="text-center py-8">
-          {isPendingNext && 'Загрузка дополнительных досок...'}
+          {isPendingNext &&
+            {
+              list: (
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ),
+              cards: (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Skeleton className="h-40 w-full" />
+                  <Skeleton className="h-40 w-full" />
+                  <Skeleton className="h-40 w-full" />
+                </div>
+              )
+            }[mode]}
         </div>
       )}
     </div>
   )
 }
-
-// export function BoardsListItemsLayout({
-//   mode,
-//   renderList,
-//   renderGrid
-// }: {
-//   mode?: 'list' | 'grid'
-//   renderList?: () => React.ReactNode
-//   renderGrid?: () => React.ReactNode
-// }) {
-//   if (mode === 'list') {
-//     ;<div className="flex flex-col gap-2">{renderList()}</div>
-//   }
-
-//   return (
-//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//       {renderGrid()}
-//     </div>
-//   )
-// }
 
 export function BoardsListLayoutCards({
   children
@@ -153,105 +150,27 @@ export function BoardsListLayoutList({
   return <div className="flex flex-col gap-2">{children}</div>
 }
 
-// export function BoardsListLayoutContent({
-//   children,
-//   cursorRef,
-//   hasCursor,
-//   isEmpty,
-//   isPending,
-//   isPendingNext,
-//   mode,
-//   renderList,
-//   renderGrid,
-// }: {
-//   children?: React.ReactNode;
-//   isEmpty?: boolean;
-//   isPending?: boolean;
-//   isPendingNext?: boolean;
-//   cursorRef?: React.Ref<HTMLDivElement>;
-//   hasCursor?: boolean;
-//   mode: ViewMode;
-//   renderList?: () => React.ReactNode;
-//   renderGrid?: () => React.ReactNode;
-// }) {
-//   return (
-//     <div>
-//       {isPending && <div className="text-center py-10">Загрузка...</div>}
-//       {mode === "list" && renderList && (
-//         <BoardsListLayoutList>{renderList?.()}</BoardsListLayoutList>
-//       )}
-//       {mode === "cards" && renderGrid && (
-//         <BoardsListLayoutCards>{renderGrid?.()}</BoardsListLayoutCards>
-//       )}
-//       {!isPending && children}
+export function BoardsLayoutContentGroups({
+  groups
+}: {
+  groups: {
+    title: string
+    items: React.ReactNode
+  }[]
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {groups.map((group) => (
+        <div key={group.title}>
+          <div className="text-lg font-bold mb-2">{group.title}</div>
+          {group.items}
+        </div>
+      ))}
+    </div>
+  )
+}
 
-//       {isEmpty && !isPending && (
-//         <div className="text-center py-10">Доски не найдены</div>
-//       )}
-
-//       {hasCursor && (
-//         <div ref={cursorRef} className="text-center py-8">
-//           {isPendingNext &&
-//             {
-//               list: (
-//                 <div className="flex flex-col gap-2">
-//                   <Skeleton className="h-10 w-full" />
-//                   <Skeleton className="h-10 w-full" />
-//                 </div>
-//               ),
-//               cards: (
-//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//                   <Skeleton className="h-40 w-full" />
-//                   <Skeleton className="h-40 w-full" />
-//                   <Skeleton className="h-40 w-full" />
-//                 </div>
-//               ),
-//             }[mode]}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// export function BoardsListLayoutCards({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return (
-//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//       {children}
-//     </div>
-//   );
-// }
-
-// export function BoardsListLayoutList({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return <div className="flex flex-col gap-2">{children}</div>;
-// }
-
-// export function BoardsLayoutContentGroups({
-//   groups,
-// }: {
-//   groups: {
-//     title: string;
-//     items: React.ReactNode;
-//   }[];
-// }) {
-//   return (
-//     <div className="flex flex-col gap-2">
-//       {groups.map((group) => (
-//         <div key={group.title}>
-//           <div className="text-lg font-bold mb-2">{group.title}</div>
-//           {group.items}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
+//===================================================
 // import { Skeleton } from "@/shared/ui/kit/skeleton";
 // import React from "react";
 // import { ViewMode } from "./view-mode-toggle";
