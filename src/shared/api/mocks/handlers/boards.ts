@@ -161,7 +161,7 @@ export const boardsHandlers = [
     const startIndex = (page - 1) * limit
     const endIndex = startIndex + limit
     const paginatedBoards = filteredBoards.slice(startIndex, endIndex)
-    await delay(1000)
+    await delay(500)
 
     return HttpResponse.json({
       list: paginatedBoards,

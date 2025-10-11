@@ -17,6 +17,7 @@ import { BoardsSearchInput } from './ui/boards-search-input'
 
 import { BoardItem } from './compose/board-item'
 import { BoardCard } from './compose/board-card'
+import { BoardsSidebar } from './ui/boards-sidebar'
 
 function BoardsListPage() {
   const boardsFilters = useBoardsFilters()
@@ -32,6 +33,7 @@ function BoardsListPage() {
 
   return (
     <BoardsListLayout
+      sidebar={<BoardsSidebar />}
       header={
         <BoardsListLayoutHeader
           title="Доски"
