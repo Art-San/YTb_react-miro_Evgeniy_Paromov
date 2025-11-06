@@ -22,7 +22,7 @@ export function BoardsListCard({
 }: BoardsListCardProps) {
   return (
     <Card key={board.id} className="relative">
-      {buttonActions && (
+      {rightTopActions && (
         <div className="absolute top-2 right-2 ">{rightTopActions}</div>
       )}
 
